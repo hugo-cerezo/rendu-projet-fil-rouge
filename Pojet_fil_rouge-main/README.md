@@ -1,106 +1,38 @@
-# Projet fil rouge
+README - Projet React avec Docker et Kubernetes
+Ce guide vous explique comment construire, taguer, pousser vos images Docker et ensuite déployer votre application React sur Kubernetes.
 
-## Introduction
+Prérequis
+Assurez-vous d'avoir Docker installé et lancé avec les droits d'administration.
+Assurez-vous d'avoir kubectl installé (ou minikube sous Linux).
+Connectez-vous à votre Docker Hub ou à tout autre registre Docker où vous souhaitez pousser vos images.
+Configurez kubectl pour pointer vers le bon cluster Kubernetes.
+Construction des Dockerfiles
+Naviguez vers le répertoire contenant votre Dockerfile pour votre application React :
 
-Ce projet est une application microservices construite avec Node.js et React. Il est conçu pour être déployé sur Kubernetes.
+bash
+cd path/to/your/react/project
+Construisez l'image Docker :
 
-## Table des matières
+bash
+docker build -t votre_nom_dutilisateur/nom_de_limage:tag .
+Où :
 
-- [Introduction](#introduction)
-- [Table des matières](#table-des-matières)
-- [Architecture](#architecture)
-- [Chemins d'Ingress](#chemins-dingress)
-- [Noms de Services Kubernetes](#noms-de-services-kubernetes)
-- [Ports des Services](#ports-des-services)
-- [Prérequis](#prérequis)
-- [Installation](#installation)
-- [Déploiement](#déploiement)
+votre_nom_dutilisateur est votre nom d'utilisateur sur Docker Hub ou le nom du registre que vous utilisez.
+nom_de_limage est le nom que vous souhaitez donner à votre image.
+tag est la version ou le tag de votre image, par exemple latest ou v1.
+Taguer et pousser l'image Docker
+Une fois que vous avez construit votre image, vous pouvez la taguer (si vous ne l'avez pas déjà fait pendant la construction) et la pousser vers votre registre :
 
-## Architecture
+bash
+docker tag votre_nom_dutilisateur/nom_de_limage:tag votre_nom_dutilisateur/nom_de_limage:nouveau_tag
+docker push votre_nom_dutilisateur/nom_de_limage:nouveau_tag
 
-L'application est composée des services suivants :
+Déploiement avec Kubernetes
+Après avoir poussé votre image Docker, vous pouvez la déployer sur Kubernetes en utilisant kubectl :
 
-- **Client** : Interface utilisateur construite avec React.
-- **Posts** : Service pour la gestion des posts.
-- **Comments** : Service pour la gestion des commentaires.
-- **Query** : Service pour la gestion des requêtes.
-- **Moderation** : Service pour la modération des commentaires.
-- **Event Bus** : Service pour la gestion des événements entre les services.
+bash
+kubectl apply -f ./k8s
 
-### Chemins d'Ingress
+Après avoir effectuer toutes ces actions vous pouvez vous connecter sur :
 
-- `/posts/create` : Dirigé vers le service `posts-clusterip-srv` sur le port 4000.
-  - Utilisé pour créer de nouveaux posts.
-  
-- `/posts` : Dirigé vers le service `query-srv` sur le port 4002.
-  - Utilisé pour récupérer la liste des posts existants.
-  
-- `/posts/?(.*)/comments` : Dirigé vers le service `comments-srv` sur le port 4001.
-  - Utilisé pour créer ou récupérer les commentaires associés à un post spécifique.
-  
-- `/?(.*)` : Dirigé vers le service `client-srv` sur le port 3000.
-  - Utilisé pour accéder à l'interface utilisateur.
- 
-
-
-### Noms de Services Kubernetes
-
-Assurez-vous que les noms de services dans vos fichiers de déploiement Kubernetes correspondent aux noms de services utilisés dans le code de l'application. Voici les noms de services attendus :
-
-- **client-srv**: Service pour l'interface utilisateur.
-- **posts-clusterip-srv**: Service pour la gestion des posts.
-- **query-srv**: Service pour la gestion des requêtes.
-- **comments-srv**: Service pour la gestion des commentaires.
-- **moderation-srv**: Service pour la modération des commentaires.
-- **event-bus-srv**: Service pour la gestion des événements entre les services.
-
-Si vous modifiez ces noms, assurez-vous également de mettre à jour les références correspondantes dans le code de l'application.
-
-
-### Ports des Services
-
-Chaque service écoute sur un port spécifique. Assurez-vous que ces ports sont correctement configurés dans vos fichiers de déploiement Kubernetes et dans tout autre outil de gestion des conteneurs que vous pourriez utiliser. Voici les ports attendus pour chaque service :
-
-- **client-srv**: Écoute sur le port 3000.
-- **posts-clusterip-srv**: Écoute sur le port 4000.
-- **query-srv**: Écoute sur le port 4002.
-- **comments-srv**: Écoute sur le port 4001.
-- **moderation-srv**: Écoute sur le port 4003.
-- **event-bus-srv**: Écoute sur le port 4005.
-
-Si vous modifiez ces ports, assurez-vous également de mettre à jour les références correspondantes dans le code de l'application et les fichiers de configuration Kubernetes.
-
-
-## Prérequis
-
-- Node.js
-- Docker
-- Kubernetes
-
-## Installation
-
-1. Clonez ce dépôt :
-    ```bash
-    git clone https://github.com/Mossbaddi/Pojet_fil_rouge.git
-    ```
-
-2. Installez les dépendances pour chaque service :
-    ```bash
-    cd client && npm install
-    cd ../posts && npm install
-    # Répétez pour tous les services
-    ```
-
-## Déploiement
-
-1. Construisez les images Docker pour chaque service :
-    ```bash
-    docker build -t client ./client
-    docker build -t posts ./posts
-    # Répétez pour tous les services
-    ```
-
-2. Déployez les services sur Kubernetes :
-    ```bash
-    kubectl apply -f k8s/
-    ```
+http://localhost
