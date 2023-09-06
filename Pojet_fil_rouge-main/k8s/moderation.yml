@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moderation-deployment
+  labels:
+    app: moderation-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: templates-mode
+  template:
+    metadata:
+      labels:
+        app: templates-mode
+    spec:
+      containers:
+      - name: moderation-container
+        imagePullPolicy: IfNotPresent
+        image: moderation
+        ports:
+        - containerPort: 4003
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: moderation-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: templates-mode
+  ports:
+  - name: moderation-port
+    protocol: TCP
+    port: 4003
+    targetPort: 4003
